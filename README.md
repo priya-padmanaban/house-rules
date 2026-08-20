@@ -1,100 +1,113 @@
-# vinext-starter
+# House Rules
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+House Rules is an interactive social-worldbuilding game about founding a town and deciding what its residents consider normal.
 
-## Prerequisites
+Rather than asking the player direct personality questions, the game presents practical civic decisions: what neighbors owe one another, how much privacy people expect, which harmless eccentricities are tolerated, how gossip travels, how conflicts are handled, and which traditions survive. Those decisions gradually produce a town with its own culture, residents, statistics, complaints, lore, and reputation.
 
-- Node.js `>=22.13.0`
+## Features
 
-## Quick Start
+- Seven chapters covering place, neighbors, privacy, weirdness, reputation, conflict, and belonging
+- 49 decisions selected deterministically from a larger structured content pool
+- Seeded town names, question ordering, population figures, and outcomes
+- Hidden social dimensions that combine to determine the final classification
+- Town updates and recurring resident commentary between chapters
+- A growing illustrated town overview
+- A substantial Town Report with observations, statistics, local history, and unintended consequences
+- Local progress persistence, including refresh-and-continue support
+- Copyable plain-text result card
+- Responsive layouts, visible keyboard focus, and reduced-motion support
+- No backend, account, database, external API, or LLM dependency
+
+## Technology
+
+- Next.js 16
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- Browser `localStorage` for saved games
+
+The application is a standard Next.js App Router project and can be deployed directly to Vercel.
+
+## Requirements
+
+- Node.js 22.13 or newer
+- pnpm 10 or newer
+
+## Local development
+
+Install dependencies:
 
 ```bash
-npm install
-npm run dev
-npm run build
+pnpm install
 ```
 
-This starter does not use `wrangler.jsonc`.
+Start the development server:
 
-## Included Shape
-
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
-
-## Workspace Auth Headers
-
-Signed-in visitors receive both `oai-authenticated-user-id` and `oai-authenticated-user-email`. Private Sites require every visitor to sign in; public Sites may also have anonymous visitors, for whom neither header is present.
-
-The user ID is stable for the same user on the same Site and different across Sites. Email and name are intended for display or contact purposes.
-
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
-
-Treat the full name as optional and fall back to email when it is absent:
-
-```tsx
-import { headers } from "next/headers";
-
-export default async function Home() {
-  const requestHeaders = await headers();
-  const userId = requestHeaders.get("oai-authenticated-user-id");
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
-
-  const displayName = fullName ?? email;
-  // ...
-}
+```bash
+pnpm dev
 ```
 
-## Optional Dispatch-Owned ChatGPT Sign-In
+Then open [http://localhost:3000](http://localhost:3000).
 
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
+Create a production build:
 
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
+```bash
+pnpm build
+```
 
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
+Run the production server locally:
 
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
+```bash
+pnpm start
+```
 
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
+## Project structure
 
-## Useful Commands
+```text
+app/
+  globals.css    Visual system, responsive layouts, and town illustration
+  layout.tsx     Site metadata and root document layout
+  page.tsx       Game content, simulation state, interactions, and report engine
+public/          Static assets
+```
 
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
+The current MVP keeps its game engine and structured content in `app/page.tsx`. Questions are represented as data rather than separate React components, so the content can be moved into chapter-specific files later without changing the interaction model.
 
-## Learn More
+## Game state
 
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+Each town maintains:
+
+- A deterministic playthrough seed
+- The chosen town name
+- Current chapter and decision index
+- Hidden social dimensions
+- Flags recording individual decisions
+- The current screen and generated report inputs
+
+Progress is stored under the browser key `house-rules-save`. There is no server-side storage, so saved towns remain on the device and browser where they were created.
+
+## Deploying to Vercel
+
+Import the repository into Vercel and use these settings:
+
+- **Framework Preset:** Next.js
+- **Build Command:** Next.js Default
+- **Output Directory:** leave blank
+- **Root Directory:** the directory containing `package.json`
+
+No environment variables are required.
+
+If the project was previously deployed using the old Vinext/Cloudflare configuration, clear the Vercel build cache before redeploying. In the deployment menu, choose **Redeploy**, enable **Clear build cache**, and deploy again.
+
+## Useful commands
+
+```bash
+pnpm dev      # Start the local development server
+pnpm build    # Create and validate the production build
+pnpm start    # Serve the completed production build
+pnpm lint     # Run the configured lint checks
+```
+
+## Privacy
+
+House Rules does not send answers or town data anywhere. All gameplay and result generation happens locally in the browser.
