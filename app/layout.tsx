@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./editorial.css";
 
 export const metadata: Metadata = {
   title: "House Rules — Found a town",
   description: "Decide what is normal. See what kind of town moves in.",
-  icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
-  },
 };
 
 export default function RootLayout({

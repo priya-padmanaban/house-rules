@@ -26,7 +26,7 @@ Rather than asking the player direct personality questions, the game presents pr
 - Tailwind CSS 4
 - Browser `localStorage` for saved games
 
-The application is a standard Next.js App Router project and can be deployed directly to Vercel.
+The application is a standard Next.js App Router project. It does not use OpenAI Sites, Vinext, Cloudflare Workers, or any platform-specific runtime, and can be deployed directly to Vercel.
 
 ## Requirements
 
