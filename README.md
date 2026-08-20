@@ -1,4 +1,4 @@
-# House Rules
+# House Rules 🏘️
 
 House Rules is an interactive social-worldbuilding game about founding a town and deciding what its residents consider normal.
 
